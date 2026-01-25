@@ -1,82 +1,68 @@
 {
-  "meta": {
-    "title": "ये 5 AI Websites आपको हैरान कर देंगी! 😳",
-    "description": "जानिए 5 AI websites के बारे में जो इतनी पावरफुल हैं कि 'illegal' लगती हैं!",
-    "tags": ["AI tools", "technology", "illegal websites"]
+  "upload_metadata": {
+    "title": "Start Learning Agentic AI Today! Beginner's Guide",
+    "description": "Discover how to begin your journey into Agentic AI with this easy beginner's guide. Learn essential steps, tools, and tips to master Agentic AI quickly. Perfect for newcomers eager to explore artificial intelligence with agency.",
+    "tags": ["Agentic AI", "AI beginner", "Artificial Intelligence", "AI learning", "AI tutorial"],
+    "hashtags": ["#AgenticAI", "#AIforBeginners", "#ArtificialIntelligence"]
+  },
+  "marketing": {
+    "ctr_titles": ["Unlock Agentic AI Today! Beginner's Step-by-Step", "Master Agentic AI Fast! Beginner's Guide", "Learn Agentic AI from Scratch – Easy & Quick!"],
+    "seo_tags": ["Agentic AI", "AI beginner guide", "how to learn AI", "AI tutorial for beginners", "artificial intelligence basics"],
+    "seo_description": "Kickstart your AI journey with our beginner-friendly guide to Agentic AI. Learn essential concepts, tools, and steps to become proficient in Agentic AI today.",
+    "thumbnail_ideas": ["Futuristic robot with glowing brain", "Person interacting with holographic AI interface", "Digital brain with interconnected nodes"]
   },
   "script": {
-    "full_voiceover": "क्या आप जानते हैं कि कुछ AI websites इतनी पावरफुल हैं कि वो 'illegal' लगती हैं? चलिए जानते हैं टॉप 5 AI websites के बारे में! सबसे पहले है 'DeepArt', जो आपकी तस्वीरों को मास्टरपीस में बदल देती है। फिर है 'RunwayML', जो आपको वीडियो एडिटिंग में जादू करने की ताकत देता है। 'Synthesia' की मदद से आप सिर्फ टेक्स्ट डालकर वीडियो बना सकते हैं! 'Copy.ai' आपकी कॉपीराइटिंग को मिनटों में कर देता है। आखिर में है 'Replika', जो आपकी हर बातचीत को समझता है और आपको एक वर्चुअल दोस्त देता है। क्या आप इनमें से किसी का इस्तेमाल कर चुके हैं?"
+    "full_voiceover": "Ready to start your journey into Agentic AI? In this video, we'll show you simple steps to learn and master Agentic AI as a beginner. First, understand what Agentic AI is — it's AI that can make decisions and act independently. Next, explore basic concepts like machine learning, decision-making algorithms, and autonomous agents. Use beginner-friendly tools like OpenAI's APIs or simulation platforms to practice. Don't forget to follow tutorials, join online communities, and experiment actively. With dedication, you'll be building your own intelligent agents in no time. Let's get started on your AI adventure today!",
+    "mood": "Energetic and inspiring"
   },
   "scenes": [
     {
       "id": 1,
-      "text_overlay": "ये 5 AI Websites 'Illegal' लगती हैं!",
-      "visual": {
-        "query": "futuristic technology interface",
-        "style": "cinematic"
-      }
+      "timestamp": "00:00-00:03",
+      "narration": "Eager to learn Agentic AI? Let's dive in!",
+      "visual": { "query": "excited person pointing at digital AI hologram" },
+      "visual_fallbacks": ["person with lightbulb moment", "digital brain illustration", "person reading AI book"],
+      "overlay_text": "Start Your AI Journey!"
     },
     {
       "id": 2,
-      "text_overlay": "1. DeepArt: तस्वीरों को मास्टरपीस बनाएं",
-      "visual": {
-        "query": "digital art creation",
-        "style": "cinematic"
-      }
+      "timestamp": "00:03-00:15",
+      "narration": "First, understand what Agentic AI is — AI that makes decisions and acts independently.",
+      "visual": { "query": "futuristic robot with decision-making icons" },
+      "visual_fallbacks": ["AI decision flowchart", "robot with gears turning", "abstract decision network"],
+      "overlay_text": "What is Agentic AI?"
     },
     {
       "id": 3,
-      "text_overlay": "2. RunwayML: वीडियो एडिटिंग में जादू",
-      "visual": {
-        "query": "video editing software",
-        "style": "cinematic"
-      }
+      "timestamp": "00:15-00:25",
+      "narration": "Learn the basics like machine learning, algorithms, and autonomous decision-making.",
+      "visual": { "query": "machine learning diagram with nodes" },
+      "visual_fallbacks": ["algorithm code on screen", "neural network visualization", "robot analyzing data"],
+      "overlay_text": "Master the Basics"
     },
     {
       "id": 4,
-      "text_overlay": "3. Synthesia: टेक्स्ट से वीडियो!",
-      "visual": {
-        "query": "text to video conversion",
-        "style": "cinematic"
-      }
+      "timestamp": "00:25-00:40",
+      "narration": "Use beginner tools like OpenAI APIs or simulation platforms to practice building your agents.",
+      "visual": { "query": "computer screen with coding AI" },
+      "visual_fallbacks": ["developer working on laptop", "AI coding interface", "virtual simulation environment"],
+      "overlay_text": "Practice with Tools"
     },
     {
       "id": 5,
-      "text_overlay": "4. Copy.ai: मिनटों में कॉपीराइटिंग",
-      "visual": {
-        "query": "content creation",
-        "style": "cinematic"
-      }
+      "timestamp": "00:40-00:50",
+      "narration": "Join online communities, follow tutorials, and experiment actively to improve.",
+      "visual": { "query": "online forum discussion about AI" },
+      "visual_fallbacks": ["person watching tutorial", "group coding session", "AI learning webinar"],
+      "overlay_text": "Learn & Experiment"
     },
     {
       "id": 6,
-      "text_overlay": "5. Replika: आपका वर्चुअल दोस्त",
-      "visual": {
-        "query": "virtual assistant AI",
-        "style": "cinematic"
-      }
-    },
-    {
-      "id": 7,
-      "text_overlay": "किसी का इस्तेमाल किया है?",
-      "visual": {
-        "query": "questioning face",
-        "style": "cinematic"
-      }
+      "timestamp": "00:50-00:60",
+      "narration": "Start today, and you'll be building your own intelligent agents in no time. Your AI adventure begins now!",
+      "visual": { "query": "person celebrating with AI code on screen" },
+      "visual_fallbacks": ["person high-fiving", "futuristic AI success graphic", "happy person with AI project"],
+      "overlay_text": "Begin Your AI Journey!"
     }
-  ],
-  "marketing": {
-    "ctr_titles": [
-      "इन 5 AI Websites का सच जानकर चौंक जाएंगे! 😳",
-      "क्या ये AI Websites वाकई 'Illegal' हैं?",
-      "AI Websites जो दुनियाभर में बैन लगाई जा सकती हैं!"
-    ],
-    "seo_description": "इस वीडियो में हम आपको 5 ऐसी AI websites के बारे में बताएंगे जो अपनी पावरफुल क्षमताओं के कारण 'illegal' लगती हैं। जानिए कैसे ये websites आपके काम को आसान बना सकती हैं और साथ ही, इनकी अद्भुत विशेषताएं।",
-    "seo_tags": ["AI tools", "illegal AI", "technology", "DeepArt", "RunwayML", "Synthesia", "Copy.ai", "Replika", "AI websites", "AI technology", "artificial intelligence", "AI applications", "digital transformation", "futuristic technology", "virtual assistant"],
-    "thumbnail_ideas": [
-      "AI robot with caution tape",
-      "Mysterious AI code with 'Illegal?' text",
-      "Shocked face with AI digital interface"
-    ]
-  }
+  ]
 }

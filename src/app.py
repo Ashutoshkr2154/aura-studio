@@ -1,9 +1,13 @@
 import streamlit as st
 import os
 import sys
+import json
 import time
 import pandas as pd
 from datetime import datetime
+
+# --- CLOUD DEPLOYMENT FIX (ImageMagick Policy) ---
+os.environ['MAGICK_CONFIGURE_PATH'] = os.getcwd()
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,345 +19,334 @@ from src.modules.assets import AssetEngine
 from src.modules.editor import VideoEditor
 from src.modules.utils import clean_temp_folder
 
+# --- CONFIGURATION ---
+HISTORY_FILE = os.path.join(Config.DATA_DIR, "history.json")
+
+# --- HELPER: PERSISTENT HISTORY MANAGER ---
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_to_history(entry):
+    history = load_history()
+    history.insert(0, entry)
+    history = history[:10]
+    os.makedirs(Config.DATA_DIR, exist_ok=True)
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(history, f, indent=4)
+    return history
+
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="AURA Platinum | AI Studio",
+    page_title="AURA 4.5 | Platinum Studio",
     page_icon="💎",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- THEME ENGINE (PLATINUM LIGHT) ---
-st.markdown("""
-    <style>
-    /* Platinum Light Theme */
-    .stApp { 
-        background-color: #f8f9fa; 
-        color: #212529; 
-    }
-    
-    /* Sidebar */
-    section[data-testid="stSidebar"] { 
-        background-color: #ffffff; 
-        border-right: 1px solid #dee2e6; 
-    }
-    
-    /* Inputs */
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {
-        background-color: #ffffff; 
-        border: 1px solid #ced4da; 
-        color: #212529; 
-        border-radius: 8px;
-    }
-    .stTextInput>div>div>input:focus, .stTextArea>div>div>textarea:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
-    }
-    
-    /* Primary Action Button */
-    div.stButton > button {
-        background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
-        border: none;
-        color: white;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 0.8rem;
-        transition: all 0.3s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    div.stButton > button:hover {
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-    
-    /* Metrics */
-    div[data-testid="stMetric"] {
-        background-color: #ffffff;
-        border: 1px solid #e9ecef;
-        border-radius: 12px;
-        padding: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-    div[data-testid="stMetric"] label { color: #6c757d; }
-    div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #212529; }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] { gap: 20px; }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #e9ecef;
-        border-radius: 5px;
-        color: #495057;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #ffffff;
-        color: #4f46e5;
-        border: 1px solid #4f46e5;
-        font-weight: 600;
-    }
-    
-    /* Expanders */
-    .streamlit-expanderHeader {
-        background-color: #ffffff;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        color: #212529;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Initialize Session State
+if 'page' not in st.session_state: st.session_state.page = "Generate"
+if 'theme' not in st.session_state: st.session_state.theme = "Dark"
+# Euri Key Session Management
+if 'euri_key_session' not in st.session_state: st.session_state.euri_key_session = Config.EURIAI_API_KEY
 
-if 'history' not in st.session_state: st.session_state.history = []
-if 'page' not in st.session_state: st.session_state.page = "Dashboard"
+# --- THEME ENGINE ---
+def apply_theme():
+    if st.session_state.theme == "Dark":
+        st.markdown("""
+            <style>
+            .stApp { background-color: #0e1117; color: #e0e0e0; }
+            section[data-testid="stSidebar"] { background-color: #161b22; }
+            .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {
+                background-color: #1f2937; color: white; border: 1px solid #374151;
+            }
+            div[data-testid="stStatusWidget"] { background-color: #1f2937; border: 1px solid #374151; }
+            div[data-testid="stExpander"] { background-color: #1f2937; border: 1px solid #374151; }
+            </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <style>
+            .stApp { background-color: #f8f9fa; color: #212529; }
+            section[data-testid="stSidebar"] { background-color: #ffffff; border-right: 1px solid #dee2e6; }
+            .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {
+                background-color: #ffffff; color: #212529; border: 1px solid #ced4da;
+            }
+            div[data-testid="stStatusWidget"] { background-color: #ffffff; border: 1px solid #e9ecef; }
+            div[data-testid="stExpander"] { background-color: #ffffff; border: 1px solid #e9ecef; }
+            </style>
+        """, unsafe_allow_html=True)
+        
+    # Global Button Style
+    st.markdown("""
+        <style>
+        div.stButton > button {
+            background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+            border: none; color: white; font-weight: 700; text-transform: uppercase;
+            padding: 0.8rem; border-radius: 8px; transition: all 0.3s;
+        }
+        div.stButton > button:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4); }
+        </style>
+    """, unsafe_allow_html=True)
 
-def navigate_to(page): st.session_state.page = page
+apply_theme()
 
-# --- SIDEBAR ---
+# --- SIDEBAR NAVIGATION ---
 with st.sidebar:
-    st.title("💎 AURA PLATINUM")
-    st.caption("v4.3 | Content Strategy Engine")
+    st.title("💎 AURA 4.5")
+    st.caption("Creator Edition")
     st.divider()
     
-    if st.button("📊 Dashboard", use_container_width=True): navigate_to("Dashboard")
-    if st.button("🎬 Creative Studio", use_container_width=True): navigate_to("Studio")
-    if st.button("🔑 Neural Vault", use_container_width=True): navigate_to("Settings")
-    if st.button("📜 Archives", use_container_width=True): navigate_to("History")
+    selected_tab = st.radio("📍 Navigation", ["🚀 Generate", "📜 History", "⚙️ Settings", "📊 Dashboard"])
     
     st.divider()
-    st.markdown("### 📡 System Status")
+    
+    # THEME TOGGLE
+    st.markdown("### 🎨 Appearance")
+    theme_choice = st.radio("Theme Mode", ["Dark", "Light"], horizontal=True, index=0 if st.session_state.theme == "Dark" else 1)
+    if theme_choice != st.session_state.theme:
+        st.session_state.theme = theme_choice
+        st.rerun()
+
+    st.divider()
+    st.markdown("### 📡 System Health")
     c1, c2 = st.columns(2)
     with c1: 
-        st.markdown("**OpenAI**")
-        if Config.OPENAI_API_KEY: st.success("Online") 
-        else: st.error("Offline")
+        if Config.OPENAI_API_KEY: st.success("Brain: ON") 
+        else: st.error("Brain: OFF")
     with c2:
-        st.markdown("**Euri AI**")
-        if Config.EURIAI_API_KEY: st.success("Online") 
-        else: st.warning("Standby")
+        if st.session_state.euri_key_session: st.success("Euri: ON") 
+        else: st.warning("Euri: OFF")
 
-# --- DASHBOARD PAGE ---
-def page_dashboard():
-    st.title("📊 Mission Control")
-    st.markdown("Global overview of your content empire.")
-    
-    c1, c2, c3, c4 = st.columns(4)
-    with c1: st.metric("Videos Created", len(st.session_state.history), "+3 Today")
-    with c2: st.metric("Avg. Engagement", "High", "Viral Potential")
-    with c3: st.metric("SEO Score", "98/100", "Optimized")
-    with c4: st.metric("Storage", "1.4 GB", "Local")
-    
-    st.markdown("### 🚀 Quick Actions")
-    col_a, col_b = st.columns([1, 4])
-    with col_a:
-        if st.button("✨ New Project", use_container_width=True): navigate_to("Studio")
-    
-    st.markdown("### 📅 Recent Productions")
-    if st.session_state.history:
-        df = pd.DataFrame(st.session_state.history)[["Date", "Topic", "Language", "Status"]]
-        st.dataframe(df, use_container_width=True, hide_index=True)
-    else:
-        st.info("System initialized. Ready for first launch.")
-
-# --- STUDIO PAGE (THE CORE) ---
-def page_studio():
+# --- PAGE 1: GENERATE (STUDIO) ---
+if selected_tab == "🚀 Generate":
     st.title("🎬 Creative Studio")
     
-    # Layout: Input Left, Output Right
-    col_input, col_output = st.columns([1, 1.3], gap="large")
+    col_input, col_output = st.columns([1, 1.2], gap="large")
     
     with col_input:
-        st.markdown("### 1. Strategy & Concept")
         with st.container(border=True):
-            topic = st.text_area("Video Topic", height=100, placeholder="e.g. The Future of Quantum Computing...")
+            st.subheader("1. Concept Strategy")
+            topic = st.text_area("Video Topic", height=100, placeholder="e.g. 3 AI Tools better than ChatGPT")
+            
+            # 4.5 Feature: Structure Selector
+            structure = st.selectbox("🏗️ Content Structure", 
+                ["Default", "Myth vs Fact", "Top 3 List", "Storytime", "Did You Know?", "Motivation"],
+                help="Select the storytelling template for your Short."
+            )
             
             c1, c2 = st.columns(2)
             with c1:
                 language = st.selectbox("🌍 Language", ["English", "Hindi", "Spanish", "French", "German"])
-                voice = st.selectbox("🎙️ Voice Model", ["Nova (Female)", "Alloy (Male)", "Echo (Deep)"])
+                # 4.5 Feature: Series Mode
+                is_series = st.checkbox("Series Mode (Part 1)", value=False)
             with c2:
-                duration = st.select_slider("⏱️ Duration", ["30s", "45s", "60s"], value="45s")
-                music = st.selectbox("🎵 Music Vibe", ["Chill", "Upbeat", "Dramatic", "Phonk", "Corporate"])
-            
-            # --- BRANDING SECTION (NEW) ---
-            with st.expander("🎨 Branding & Watermark"):
-                watermark_text = st.text_input("Channel Name (Watermark)", placeholder="@AuraAI")
-                logo_file = st.file_uploader("Upload Logo (PNG)", type=["png"])
+                duration = st.select_slider("⏱️ Duration", ["30s", "45s", "60s"], value="60s")
+                voice = st.selectbox("🎙️ Voice", ["Nova (Female)", "Alloy (Male)", "Echo (Deep)", "Hindi (Neural)"])
 
+            st.divider()
+            st.subheader("2. Vibe & Branding")
+            music = st.selectbox("🎵 Music Mood", ["Chill", "Upbeat", "Dramatic", "Phonk", "Corporate"])
+            
+            branding_enabled = st.checkbox("Apply Watermark", value=True)
+            watermark_text = ""
+            logo_path = None
+            
+            if branding_enabled:
+                watermark_text = st.text_input("Handle / Channel Name", "@YourChannel")
+                logo_file = st.file_uploader("Upload Logo (PNG)", type=["png"])
+                if logo_file:
+                    logo_path = os.path.join(Config.TEMP_DIR, "logo.png")
+                    with open(logo_path, "wb") as f:
+                        f.write(logo_file.getbuffer())
+                
+                # Series Logic
+                if is_series:
+                    watermark_text = f"{watermark_text} | PART 1" if watermark_text else "PART 1"
+            
             st.divider()
             generate_btn = st.button("🚀 LAUNCH PRODUCTION", use_container_width=True)
 
     with col_output:
-        st.markdown("### 2. Live Output Monitor")
+        st.subheader("3. Live Monitor")
         
         if generate_btn and topic:
-            # TABS for Output
-            tab_video, tab_marketing, tab_logs = st.tabs(["📺 Video Preview", "📈 Content Intelligence", "⚙️ System Logs"])
+            status = st.status("💎 AURA Engine Initializing...", expanded=True)
             
-            # --- EXECUTION LOGIC ---
-            with tab_logs:
-                log_container = st.empty()
-                progress_bar = st.progress(0)
+            try:
+                # PHASE 0: PREP
+                clean_temp_folder(Config.TEMP_DIR)
                 
-                def log(msg, step=None):
-                    log_container.code(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
-                    if step: progress_bar.progress(step)
+                # PHASE 1: BRAIN (Updated for 4.5)
+                status.write(f"🧠 **Brain:** Drafting '{structure}' script...")
+                # Pass Session Key override
+                brain = Brain(euri_key_override=st.session_state.euri_key_session)
+                # Pass Structure
+                blueprint = brain.generate_video_blueprint(topic, language, structure)
+                
+                if not blueprint:
+                    status.update(label="❌ Brain Failure", state="error")
+                    st.stop()
+                
+                title = blueprint['upload_metadata']['title']
+                status.write(f"✅ Strategy Locked: *{title}*")
 
-                try:
-                    # PHASE 0
-                    log("Initializing AURA 4.3...", 5)
-                    clean_temp_folder(Config.TEMP_DIR)
-                    
-                    # Save Logo if uploaded
-                    logo_path = None
-                    if logo_file:
-                        logo_path = os.path.join(Config.TEMP_DIR, "logo.png")
-                        with open(logo_path, "wb") as f:
-                            f.write(logo_file.getbuffer())
-                    
-                    # PHASE 1: BRAIN
-                    log(f"🧠 BRAIN: Analyzing topic in {language}...", 15)
-                    brain = Brain()
-                    # PASS LANGUAGE TO BRAIN
-                    blueprint = brain.generate_video_blueprint(topic, language=language)
-                    
-                    if not blueprint:
-                        st.error("Brain Failure.")
-                        st.stop()
-                    
-                    # Extract Data
-                    script = blueprint.get('script', {}).get('full_voiceover')
-                    scenes = blueprint.get('scenes', [])
-                    marketing_data = blueprint.get('marketing', {})
-                    title = blueprint.get('upload_metadata', {}).get('title', 'Untitled')
-                    
-                    log(f"✅ Script Generated ({len(script.split())} words)", 30)
+                # PHASE 2: AUDIO
+                status.write(f"🎙️ **Audio:** Synthesizing {language} neural voice...")
+                script_text = blueprint['script']['full_voiceover']
+                audio_path = os.path.join(Config.TEMP_DIR, "voice.mp3")
+                
+                target_voice = language if language != "English" else voice
+                VoiceEngine.generate_audio(script_text, audio_path, voice_name=target_voice)
+                status.write("✅ Audio Mastered")
 
-                    # PHASE 2: ASSETS
-                    # Determine voice logic
-                    if language != "English":
-                        target_voice = language # e.g. "Hindi"
-                    else:
-                        target_voice = voice # e.g. "Nova"
+                # PHASE 3: VISUALS
+                scenes = blueprint['scenes']
+                status.write(f"👁️ **Vision:** Scouting {len(scenes)} premium assets...")
+                video_paths = AssetEngine.download_scene_assets(scenes)
+                status.write(f"✅ Downloaded {len(video_paths)} Clips")
 
-                    log(f"🎙️ AUDIO: Synthesizing with {target_voice}...", 45)
-                    audio_path = os.path.join(Config.TEMP_DIR, "voice_main.mp3")
-                    VoiceEngine.generate_audio(script, audio_path, voice_name=target_voice)
+                # PHASE 4: EDITING
+                status.write(f"🎬 **Editor:** Mixing tracks (Music: {music})...")
+                assets = {
+                    "audio_path": audio_path,
+                    "video_paths": video_paths,
+                    "music_mood": music,
+                    "watermark_text": watermark_text,
+                    "logo_path": logo_path
+                }
+                final_video = VideoEditor.assemble_video(blueprint, assets)
+                
+                status.update(label="✅ Production Complete!", state="complete", expanded=False)
+                
+                st.balloons()
+                st.success(f"**{title}**")
+                st.video(final_video)
+                
+                with open(final_video, "rb") as f:
+                    st.download_button("⬇️ Download Final Video", f, file_name=f"{title}.mp4", use_container_width=True)
+                
+                # CONTENT INTELLIGENCE
+                with st.expander("📈 Viral Marketing & Thumbnails", expanded=True):
+                    m_data = blueprint.get('marketing', {})
+                    mc1, mc2 = st.columns(2)
                     
-                    log(f"👁️ VISION: Scouting {len(scenes)} scenes...", 60)
-                    video_paths = AssetEngine.download_scene_assets(scenes)
-                    
-                    # PHASE 3: EDITING
-                    log(f"🎬 EDITOR: Assembling with Watermark...", 80)
-                    
-                    # --- CONNECTING EVERYTHING ---
-                    assets = {
-                        "audio_path": audio_path, 
-                        "video_paths": video_paths,
-                        "music_mood": music,
-                        "voice_model": target_voice,
-                        "watermark_text": watermark_text,
-                        "logo_path": logo_path
-                    }
-                    
-                    final_path = VideoEditor.assemble_video(blueprint, assets)
-                    
-                    if final_path:
-                        log("✅ RENDER COMPLETE.", 100)
-                        st.balloons()
+                    with mc1:
+                        st.markdown("**🔥 Viral Titles:**")
+                        for t in m_data.get('ctr_titles', []): st.info(f"• {t}")
+                        st.markdown("**🏷️ SEO Tags:**")
+                        st.code(", ".join(m_data.get('seo_tags', [])), language="text")
+                        st.markdown("**📝 Description:**")
+                        st.text_area("Copy:", m_data.get('seo_description', "N/A"), height=100)
+
+                    with mc2:
+                        st.markdown("**🎨 AI Thumbnail Generator**")
+                        thumb_ideas = m_data.get('thumbnail_ideas', ["Futuristic Concept"])
+                        selected_idea = st.selectbox("Choose Concept:", thumb_ideas)
                         
-                        # --- 1. VIDEO TAB ---
-                        with tab_video:
-                            st.success(f"**{title}**")
-                            st.video(final_path)
-                            with open(final_path, 'rb') as f:
-                                st.download_button("⬇️ Download Video", f, file_name=f"{title}.mp4")
+                        if st.button("✨ GENERATE THUMBNAIL"):
+                            with st.spinner("🎨 AI is painting..."):
+                                thumb_path = AssetEngine.generate_ai_image(selected_idea, "thumbnail_final.jpg")
+                                if thumb_path:
+                                    st.image(thumb_path)
+                                    with open(thumb_path, "rb") as file:
+                                        st.download_button("⬇️ Download JPG", file, file_name="thumbnail.jpg", mime="image/jpeg")
+                                else:
+                                    st.error("Thumbnail generation failed.")
 
-                        # --- 2. MARKETING TAB ---
-                        with tab_marketing:
-                            st.subheader("🚀 Viral Strategy & Assets")
-                            
-                            m_c1, m_c2 = st.columns(2)
-                            
-                            with m_c1:
-                                st.markdown("**🔥 Viral Title Options**")
-                                for t in marketing_data.get('ctr_titles', ["N/A"]):
-                                    st.info(f"• {t}")
-                                    
-                                st.markdown("**🏷️ SEO Tags**")
-                                tags = marketing_data.get('seo_tags', [])
-                                st.code(", ".join(tags) if tags else "N/A", language="text")
-                                
-                                st.markdown("**📝 Description**")
-                                st.text_area("Copy:", marketing_data.get('seo_description', "N/A"), height=100)
+                entry = {
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "topic": topic,
+                    "title": title,
+                    "path": final_video,
+                    "language": language
+                }
+                save_to_history(entry)
 
-                            with m_c2:
-                                st.markdown("**🎨 AI Thumbnail Generator**")
-                                
-                                # Get ideas from Brain
-                                thumb_ideas = marketing_data.get('thumbnail_ideas', ["Futuristic AI Robot"])
-                                selected_idea = st.selectbox("Choose Concept:", thumb_ideas)
-                                
-                                if st.button("✨ GENERATE THUMBNAIL"):
-                                    with st.spinner("🎨 AI is painting your thumbnail (Flux Model)..."):
-                                        thumb_path = AssetEngine.generate_ai_image(selected_idea, "thumbnail_final.jpg")
-                                        if thumb_path:
-                                            st.image(thumb_path, caption="AI Generated Thumbnail (1280x720)")
-                                            with open(thumb_path, "rb") as file:
-                                                st.download_button(
-                                                    label="⬇️ Download Thumbnail",
-                                                    data=file,
-                                                    file_name="thumbnail.jpg",
-                                                    mime="image/jpeg"
-                                                )
-                                        else:
-                                            st.error("Thumbnail generation failed.")
-
-                        # Save History
-                        st.session_state.history.append({
-                            "Date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                            "Topic": topic,
-                            "Language": language,
-                            "Status": "✅ Success",
-                            "Path": final_path
-                        })
-                    else:
-                        st.error("Render Failed.")
-                        
-                except Exception as e:
-                    st.error(f"Critical Error: {e}")
+            except Exception as e:
+                status.update(label="❌ Critical System Error", state="error")
+                st.error(f"Error Log: {e}")
 
         else:
-            with col_output:
-                st.info("👈 Waiting for Strategy Input...")
-                st.image("https://images.unsplash.com/photo-1614064641938-3bbee52942c7?q=80&w=2670&auto=format&fit=crop", caption="AURA System Standby")
+            st.info("👈 System Standby. Enter a topic to begin.")
+            st.markdown("""
+                <div style="padding: 20px; border-radius: 10px; border: 1px dashed #6c757d; text-align: center;">
+                    <h3 style="margin:0; opacity: 0.7;">Waiting for Input...</h3>
+                </div>
+            """, unsafe_allow_html=True)
 
-# --- SETTINGS PAGE ---
-def page_settings():
-    st.title("🔑 Neural Vault")
-    with st.container(border=True):
-        st.subheader("API Keys (Loaded from .env)")
-        st.text_input("OpenAI Key", value=Config.OPENAI_API_KEY or "", type="password", disabled=True)
-        st.text_input("Euri AI Key", value=Config.EURIAI_API_KEY or "", type="password", disabled=True)
-        st.text_input("Pexels Key", value=Config.PEXELS_API_KEY or "", type="password", disabled=True)
-
-# --- HISTORY PAGE ---
-def page_history():
-    st.title("📜 Archives")
-    if not st.session_state.history:
-        st.info("No records found.")
-        return
+# --- PAGE 2: HISTORY ---
+elif selected_tab == "📜 History":
+    st.title("📚 Content Archives")
+    st.markdown("Your locally generated videos (Saved to `data/history.json`).")
     
-    for job in reversed(st.session_state.history):
-        with st.expander(f"{job['Date']} | {job['Topic']} ({job['Language']})"):
-            st.video(job['Path'])
+    history_data = load_history()
+    
+    if not history_data:
+        st.warning("No history found. Go to 'Generate' to create your first video!")
+    else:
+        for item in history_data:
+            with st.container(border=True):
+                c1, c2 = st.columns([1, 2])
+                with c1:
+                    if os.path.exists(item['path']):
+                        st.video(item['path'])
+                    else:
+                        st.error("⚠️ File missing (Storage Cleaned?)")
+                with c2:
+                    st.subheader(item.get('title', 'Untitled'))
+                    st.caption(f"📅 {item['timestamp']} | 🌍 {item['language']}")
+                    st.markdown(f"**Topic:** {item['topic']}")
+                    
+                    if os.path.exists(item['path']):
+                         with open(item['path'], "rb") as f:
+                            st.download_button("⬇️ Re-Download", f, file_name=f"{item['title']}.mp4", key=item['timestamp'])
 
-# --- MAIN ROUTER ---
-def main():
-    if st.session_state.page == "Dashboard": page_dashboard()
-    elif st.session_state.page == "Studio": page_studio()
-    elif st.session_state.page == "Settings": page_settings()
-    elif st.session_state.page == "History": page_history()
+# --- PAGE 3: SETTINGS ---
+elif selected_tab == "⚙️ Settings":
+    st.title("⚙️ Engine Configuration")
+    
+    with st.container(border=True):
+        st.subheader("🔑 API Vault")
+        
+        st.info("💡 Note: Euri Key updates here apply to the current session only.")
+        
+        # 4.5 Feature: Euri Key Editor
+        new_euri_key = st.text_input("Euri AI API Key (Override)", 
+                                     value=st.session_state.euri_key_session if st.session_state.euri_key_session else "", 
+                                     type="password",
+                                     placeholder="sk-euri-...")
+        
+        if new_euri_key != st.session_state.euri_key_session:
+            st.session_state.euri_key_session = new_euri_key
+            st.success("✅ Euri Key Updated for this session!")
 
-if __name__ == "__main__":
-    main()
+        st.divider()
+        st.text_input("OpenAI Key (Loaded from Secrets)", value=Config.OPENAI_API_KEY, disabled=True, type="password")
+        st.text_input("Pexels Key (Loaded from Secrets)", value=Config.PEXELS_API_KEY, disabled=True, type="password")
+        
+    with st.container(border=True):
+        st.subheader("🧹 Maintenance")
+        if st.button("Clear Temporary Files"):
+            clean_temp_folder(Config.TEMP_DIR)
+            st.success("Temp folder cleaned.")
+
+# --- PAGE 4: DASHBOARD ---
+elif selected_tab == "📊 Dashboard":
+    st.title("📊 Mission Control")
+    history_data = load_history()
+    
+    c1, c2, c3 = st.columns(3)
+    with c1: st.metric("Total Videos", len(history_data))
+    with c2: st.metric("Languages Used", len(set(h['language'] for h in history_data)) if history_data else 0)
+    with c3: st.metric("Storage Used", "1.4 GB" if history_data else "0 MB")
+    
+    st.markdown("### 📅 Recent Activity")
+    if history_data:
+        df = pd.DataFrame(history_data)[["timestamp", "title", "language"]]
+        st.dataframe(df, use_container_width=True, hide_index=True)
