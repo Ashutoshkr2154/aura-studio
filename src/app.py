@@ -259,12 +259,14 @@ if selected_tab == "🚀 Generate":
                                 else:
                                     st.error("Thumbnail generation failed.")
 
+                # --- SAVE FULL DATA TO HISTORY ---
                 entry = {
                     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     "topic": topic,
                     "title": title,
                     "path": final_video,
-                    "language": language
+                    "language": language,
+                    "marketing": blueprint.get('marketing', {})  # <--- SAVING MARKETING DATA
                 }
                 save_to_history(entry)
 
@@ -283,7 +285,7 @@ if selected_tab == "🚀 Generate":
 # --- PAGE 2: HISTORY ---
 elif selected_tab == "📜 History":
     st.title("📚 Content Archives")
-    st.markdown("Your locally generated videos (Saved to `data/history.json`).")
+    st.markdown("Your locally generated videos.")
     
     history_data = load_history()
     
@@ -297,12 +299,21 @@ elif selected_tab == "📜 History":
                     if os.path.exists(item['path']):
                         st.video(item['path'])
                     else:
-                        st.error("⚠️ File missing (Storage Cleaned?)")
+                        st.error("⚠️ Video file gone (Session Reset)")
                 with c2:
                     st.subheader(item.get('title', 'Untitled'))
                     st.caption(f"📅 {item['timestamp']} | 🌍 {item['language']}")
                     st.markdown(f"**Topic:** {item['topic']}")
                     
+                    # NEW: VIEW SAVED MARKETING DATA
+                    with st.expander("📈 View Saved SEO & Marketing"):
+                        m = item.get('marketing', {})
+                        st.markdown("**Viral Title:** " + (m.get('ctr_titles', ['N/A'])[0] if m.get('ctr_titles') else 'N/A'))
+                        st.markdown("**Tags:**")
+                        st.code(", ".join(m.get('seo_tags', [])), language="text")
+                        st.markdown("**Description:**")
+                        st.caption(m.get('seo_description', "No description saved."))
+
                     if os.path.exists(item['path']):
                          with open(item['path'], "rb") as f:
                             st.download_button("⬇️ Re-Download", f, file_name=f"{item['title']}.mp4", key=item['timestamp'])
