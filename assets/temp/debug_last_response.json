@@ -1,68 +1,60 @@
 {
   "upload_metadata": {
-    "title": "Start Learning Agentic AI Today! Beginner's Guide",
-    "description": "Discover how to begin your journey into Agentic AI with this easy beginner's guide. Learn essential steps, tools, and tips to master Agentic AI quickly. Perfect for newcomers eager to explore artificial intelligence with agency.",
-    "tags": ["Agentic AI", "AI beginner", "Artificial Intelligence", "AI learning", "AI tutorial"],
-    "hashtags": ["#AgenticAI", "#AIforBeginners", "#ArtificialIntelligence"]
+    "title": "3 Study Hacks Every Student Must Know!",
+    "description": "Discover 3 powerful study hacks to boost your learning efficiency! Learn how to study smarter with these proven tips. Perfect for students aiming for top grades. Watch now!",
+    "tags": ["study hacks", "student tips", "exam preparation", "learning tricks", "study motivation"],
+    "hashtags": ["#StudyHacks", "#StudentLife", "#ExamTips"]
   },
   "marketing": {
-    "ctr_titles": ["Unlock Agentic AI Today! Beginner's Step-by-Step", "Master Agentic AI Fast! Beginner's Guide", "Learn Agentic AI from Scratch – Easy & Quick!"],
-    "seo_tags": ["Agentic AI", "AI beginner guide", "how to learn AI", "AI tutorial for beginners", "artificial intelligence basics"],
-    "seo_description": "Kickstart your AI journey with our beginner-friendly guide to Agentic AI. Learn essential concepts, tools, and steps to become proficient in Agentic AI today.",
-    "thumbnail_ideas": ["Futuristic robot with glowing brain", "Person interacting with holographic AI interface", "Digital brain with interconnected nodes"]
+    "ctr_titles": ["Boost Your Grades with These 3 Study Hacks!", "Top 3 Secrets to Smarter Studying!", "Must-Know Study Tips for Students!"],
+    "seo_tags": ["study hacks", "student tips", "exam preparation", "learning tricks", "study motivation"],
+    "seo_description": "Learn 3 effective study hacks to improve your academic performance. Perfect for students seeking smarter ways to study and ace exams. Watch now!",
+    "thumbnail_ideas": ["Person writing in notebook with focused expression", "Close-up of ticking clock with blurred background", "Stack of books with a quiet library setting"]
   },
   "script": {
-    "full_voiceover": "Ready to start your journey into Agentic AI? In this video, we'll show you simple steps to learn and master Agentic AI as a beginner. First, understand what Agentic AI is — it's AI that can make decisions and act independently. Next, explore basic concepts like machine learning, decision-making algorithms, and autonomous agents. Use beginner-friendly tools like OpenAI's APIs or simulation platforms to practice. Don't forget to follow tutorials, join online communities, and experiment actively. With dedication, you'll be building your own intelligent agents in no time. Let's get started on your AI adventure today!",
-    "mood": "Energetic and inspiring"
+    "full_voiceover": "क्या आप अपने स्टडी टाइम को बेहतर बनाना चाहते हैं? यहाँ हैं 3 आसान स्टडी हैक्स जो आपकी पढ़ाई को स्मार्ट बनाएंगे! पहला, नोटबुक में महत्वपूर्ण बिंदु जल्दी से लिखें ताकि रिवीजन आसान हो जाए। दूसरा, टाइम मैनेजमेंट के लिए हर गतिविधि के लिए तय समय सेट करें, जैसे टिक टिक घड़ी की तरह। तीसरा, लाइब्रेरी जैसी शांत जगह का उपयोग करें ताकि ध्यान भटकना कम हो और पढ़ाई प्रभावी हो। इन ट्रिक्स को अपनाएं और अपने ग्रेड्स में सुधार देखें! अभी शुरू करें, सफलता आपके कदम चूमेगी।",
+    "mood": "Energetic"
   },
   "scenes": [
     {
       "id": 1,
       "timestamp": "00:00-00:03",
-      "narration": "Eager to learn Agentic AI? Let's dive in!",
-      "visual": { "query": "excited person pointing at digital AI hologram" },
-      "visual_fallbacks": ["person with lightbulb moment", "digital brain illustration", "person reading AI book"],
-      "overlay_text": "Start Your AI Journey!"
+      "narration": "क्या आप अपने स्टडी टाइम को बेहतर बनाना चाहते हैं?",
+      "visual": { "query": "Person writing in notebook" },
+      "visual_fallbacks": ["Person taking notes", "Student writing notes in class"],
+      "overlay_text": "3 Study Hacks!"
     },
     {
       "id": 2,
-      "timestamp": "00:03-00:15",
-      "narration": "First, understand what Agentic AI is — AI that makes decisions and acts independently.",
-      "visual": { "query": "futuristic robot with decision-making icons" },
-      "visual_fallbacks": ["AI decision flowchart", "robot with gears turning", "abstract decision network"],
-      "overlay_text": "What is Agentic AI?"
+      "timestamp": "00:04-00:20",
+      "narration": "पहला ट्रिक, नोटबुक में महत्वपूर्ण बिंदु जल्दी से लिखें ताकि रिवीजन आसान हो जाए।",
+      "visual": { "query": "Notebook with handwritten notes" },
+      "visual_fallbacks": ["Student highlighting notes", "Close-up of notes in notebook"],
+      "overlay_text": "Note Smartly!"
     },
     {
       "id": 3,
-      "timestamp": "00:15-00:25",
-      "narration": "Learn the basics like machine learning, algorithms, and autonomous decision-making.",
-      "visual": { "query": "machine learning diagram with nodes" },
-      "visual_fallbacks": ["algorithm code on screen", "neural network visualization", "robot analyzing data"],
-      "overlay_text": "Master the Basics"
+      "timestamp": "00:21-00:35",
+      "narration": "दूसरा ट्रिक, टाइम मैनेजमेंट के लिए हर गतिविधि के लिए तय समय सेट करें, जैसे टिक टिक घड़ी की तरह।",
+      "visual": { "query": "Close-up of ticking clock" },
+      "visual_fallbacks": ["Alarm clock ringing", "Timer counting down"],
+      "overlay_text": "Time is Key!"
     },
     {
       "id": 4,
-      "timestamp": "00:25-00:40",
-      "narration": "Use beginner tools like OpenAI APIs or simulation platforms to practice building your agents.",
-      "visual": { "query": "computer screen with coding AI" },
-      "visual_fallbacks": ["developer working on laptop", "AI coding interface", "virtual simulation environment"],
-      "overlay_text": "Practice with Tools"
+      "timestamp": "00:36-00:50",
+      "narration": "तीसरा, लाइब्रेरी जैसी शांत जगह का उपयोग करें ताकि ध्यान भटकना कम हो और पढ़ाई प्रभावी हो।",
+      "visual": { "query": "Stack of books in library" },
+      "visual_fallbacks": ["Quiet library interior", "Student studying in library"],
+      "overlay_text": "Study Quietly!"
     },
     {
       "id": 5,
-      "timestamp": "00:40-00:50",
-      "narration": "Join online communities, follow tutorials, and experiment actively to improve.",
-      "visual": { "query": "online forum discussion about AI" },
-      "visual_fallbacks": ["person watching tutorial", "group coding session", "AI learning webinar"],
-      "overlay_text": "Learn & Experiment"
-    },
-    {
-      "id": 6,
-      "timestamp": "00:50-00:60",
-      "narration": "Start today, and you'll be building your own intelligent agents in no time. Your AI adventure begins now!",
-      "visual": { "query": "person celebrating with AI code on screen" },
-      "visual_fallbacks": ["person high-fiving", "futuristic AI success graphic", "happy person with AI project"],
-      "overlay_text": "Begin Your AI Journey!"
+      "timestamp": "00:51-00:60",
+      "narration": "इन ट्रिक्स को अपनाएं और अपने ग्रेड्स में सुधार देखें! अभी शुरू करें, सफलता आपके कदम चूमेगी।",
+      "visual": { "query": "Person celebrating success with books" },
+      "visual_fallbacks": ["Happy student with books", "Student smiling in library"],
+      "overlay_text": "Start Now!"
     }
   ]
 }

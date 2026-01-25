@@ -1,5 +1,113 @@
 [
     {
+        "timestamp": "2026-01-25 22:49",
+        "topic": "3 Study Hacks for Students (Visuals: Person writing in notebook, ticking clock close up, stack of books, library silence)",
+        "title": "3 Study Hacks Every Student Must Know!",
+        "path": "C:\\Users\\AshutoshKumar\\AURA_4.0\\data\\output\\AURA_5711.mp4",
+        "language": "Hindi",
+        "marketing": {
+            "ctr_titles": [
+                "Boost Your Grades with These 3 Study Hacks!",
+                "Top 3 Secrets to Smarter Studying!",
+                "Must-Know Study Tips for Students!"
+            ],
+            "seo_tags": [
+                "study hacks",
+                "student tips",
+                "exam preparation",
+                "learning tricks",
+                "study motivation"
+            ],
+            "seo_description": "Learn 3 effective study hacks to improve your academic performance. Perfect for students seeking smarter ways to study and ace exams. Watch now!",
+            "thumbnail_ideas": [
+                "Person writing in notebook with focused expression",
+                "Close-up of ticking clock with blurred background",
+                "Stack of books with a quiet library setting"
+            ]
+        }
+    },
+    {
+        "timestamp": "2026-01-25 22:37",
+        "topic": "\u0907\u0938 short \u092e\u0947\u0902 \u0906\u092a \u091c\u093e\u0928\u094b\u0917\u0947 3 free AI tools \u091c\u094b \u0906\u092a\u0915\u0940 notes, assignments \u0914\u0930 exam prep \u0915\u094b super fast \u092c\u0928\u093e \u0926\u0947\u0902\u0917\u0947 \u2705",
+        "title": "3 Free AI Tools to Boost Your Notes, Assignments & Exam Prep FAST!",
+        "path": "C:\\Users\\AshutoshKumar\\AURA_4.0\\data\\output\\AURA_7245.mp4",
+        "language": "Hindi",
+        "marketing": {
+            "ctr_titles": [
+                "\u092f\u0939 3 AI \u091f\u0942\u0932\u094d\u0938 \u0906\u092a\u0915\u0947 \u0938\u094d\u091f\u0921\u0940 \u0906\u0938\u093e\u0928 \u092c\u0928\u093e \u0926\u0947\u0902\u0917\u0947!",
+                "\u092b\u094d\u0930\u0940 AI \u091f\u0942\u0932\u094d\u0938 \u0938\u0947 \u0905\u092a\u0928\u0940 \u092a\u0922\u093c\u093e\u0908 \u0924\u0947\u091c\u093c \u0915\u0930\u0947\u0902!",
+                "\u0938\u094d\u091f\u0942\u0921\u0947\u0902\u091f\u094d\u0938 \u0915\u0947 \u0932\u093f\u090f 3 \u0938\u0941\u092a\u0930\u092b\u093e\u0938\u094d\u091f AI \u091f\u0942\u0932\u094d\u0938!"
+            ],
+            "seo_tags": [
+                "AI tools for students",
+                "free AI tools",
+                "study hacks",
+                "exam prep tools",
+                "notes automation"
+            ],
+            "seo_description": "Learn about 3 amazing free AI tools that can instantly improve your notes, assignments, and exam prep. Perfect for students seeking quick and efficient study methods.",
+            "thumbnail_ideas": [
+                "Close-up of a student using a laptop with glowing AI icons",
+                "Animated icons representing AI tools with study materials",
+                "Bright collage of notes, assignments, and AI symbols"
+            ]
+        }
+    },
+    {
+        "timestamp": "2026-01-25 22:26",
+        "topic": "langgraph ",
+        "title": "LangGraph: Language Learning Revolution!",
+        "path": "C:\\Users\\AshutoshKumar\\AURA_4.0\\data\\output\\AURA_9920.mp4",
+        "language": "Hindi",
+        "marketing": {
+            "ctr_titles": [
+                "Transform Your Language Skills with LangGraph!",
+                "Unlock Fluency Faster Using LangGraph!",
+                "Revolutionize Learning with LangGraph!"
+            ],
+            "seo_tags": [
+                "LangGraph",
+                "Language Learning Tools",
+                "Visual Language Apps",
+                "Learn Languages Faster",
+                "Language Education"
+            ],
+            "seo_description": "Explore how LangGraph uses visual learning techniques to accelerate language mastery. Perfect for students and educators seeking innovative language tools.",
+            "thumbnail_ideas": [
+                "Colorful language graph visualization",
+                "Person using digital language learning app",
+                "Animated language diagram with vibrant colors"
+            ]
+        }
+    },
+    {
+        "timestamp": "2026-01-25 22:18",
+        "topic": "define Langchain ",
+        "title": "Unlock the Power of LangChain in 60 Seconds!",
+        "path": "C:\\Users\\AshutoshKumar\\AURA_4.0\\data\\output\\AURA_8559.mp4",
+        "language": "English",
+        "marketing": {
+            "ctr_titles": [
+                "What is LangChain? The Future of AI in 60 Seconds!",
+                "Unlock AI Power with LangChain!",
+                "LangChain Explained for Developers!"
+            ],
+            "seo_tags": [
+                "LangChain",
+                "AI development",
+                "language models",
+                "AI tools",
+                "tech tutorial"
+            ],
+            "seo_description": "Learn what LangChain is and how it transforms AI development. A quick guide for developers and AI enthusiasts to understand the revolutionary framework for building smarter AI applications.",
+            "thumbnail_ideas": [
+                "Futuristic AI brain with code streams",
+                "Developer working on code with digital interface",
+                "Abstract neural network with glowing nodes"
+            ]
+        }
+    },
+    {
         "timestamp": "2026-01-25 20:34",
         "topic": "How to strat learning Agentic AI  as a Beginner .",
         "title": "Start Learning Agentic AI Today! Beginner's Guide",
