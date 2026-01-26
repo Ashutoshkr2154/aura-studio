@@ -2,20 +2,40 @@ import os
 import sys
 
 # ==========================================
-# ☁️ CLOUD DEPLOYMENT FIX (CRITICAL)
+# ☢️ NUCLEAR CLOUD FIX: FORCE POLICY.XML
 # ==========================================
-# This MUST be the very first thing that runs.
-# It tells ImageMagick: "Look for policy.xml in THIS folder, not the system folder."
-os.environ['MAGICK_CONFIGURE_PATH'] = os.getcwd()
+# This creates the security file in the server's TEMP folder 
+# so ImageMagick GUARANTEES it can find it.
+if os.name == 'posix':  # Only runs on Linux (Streamlit Cloud)
+    print("☁️ DETECTED CLOUD ENVIRONMENT: Applying Security Patch...")
+    try:
+        # 1. Define the lenient policy
+        policy_content = """
+        <policymap>
+          <policy domain="path" rights="read|write" pattern="@*" />
+          <policy domain="coder" rights="read|write" pattern="LABEL" />
+          <policy domain="coder" rights="read|write" pattern="CAPTION" />
+          <policy domain="coder" rights="read|write" pattern="TEXT" />
+          <policy domain="resource" name="memory" value="256MiB"/>
+          <policy domain="resource" name="map" value="512MiB"/>
+        </policymap>
+        """
+        # 2. Write it to the temporary system folder
+        with open("/tmp/policy.xml", "w") as f:
+            f.write(policy_content)
+        
+        # 3. Force ImageMagick to look in /tmp
+        os.environ['MAGICK_CONFIGURE_PATH'] = "/tmp"
+        print("✅ SECURITY PATCH APPLIED: policy.xml written to /tmp")
+        
+    except Exception as e:
+        print(f"⚠️ PATCH FAILED: {e}")
 # ==========================================
 
 import PIL.Image
-# ==========================================
-# 🚑 HOTFIX: PILLOW 10.0.0 COMPATIBILITY
-# ==========================================
+# FIX FOR PILLOW 10+
 if not hasattr(PIL.Image, 'ANTIALIAS'):
     PIL.Image.ANTIALIAS = PIL.Image.LANCZOS
-# ==========================================
 
 import streamlit as st
 import json
@@ -197,11 +217,10 @@ if selected_tab == "🚀 Generate":
                 # PHASE 0: PREP
                 clean_temp_folder(Config.TEMP_DIR)
                 
-                # PHASE 1: BRAIN (Updated for 4.6)
+                # PHASE 1: BRAIN
                 status.write(f"🧠 **Brain:** Drafting '{structure}' script for {audience}...")
                 brain = Brain(euri_key_override=st.session_state.euri_key_session)
                 
-                # Passing NEW parameters to Brain
                 blueprint = brain.generate_video_blueprint(
                     topic=topic, 
                     language=language, 
@@ -236,7 +255,6 @@ if selected_tab == "🚀 Generate":
                 # PHASE 4: EDITING
                 status.write(f"🎬 **Editor:** Mixing tracks (Music: {music})...")
                 
-                # --- SAFETY CHECK: PREVENT CRASH IF LOGO MISSING ---
                 safe_logo_path = None
                 if logo_path and os.path.exists(logo_path):
                     safe_logo_path = logo_path
