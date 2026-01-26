@@ -1,5 +1,29 @@
 [
     {
+        "timestamp": "2026-01-26 22:14",
+        "topic": "**\u201cData Science Roadmap in 30 Seconds\u201d**\n\n\ud83c\udfa5 **Visuals (Short):**\n\n1. **Hook:** Fast moving \u201cDATA SCIENCE\u201d text + laptop coding\n2. **Step 1:** Excel/CSV sheets animation\n3. **Step 2:** Python code screen (Pandas/NumPy)\n4. **Step 3:** Charts/graphs (bar + line chart)\n5. **Step 4:** ML model icon (brain/AI)\n6. **Step 5:** Real project dashboard + \u201cHired!\u201d text\n7. **End:** \u201cStart Today \u2705\u201d + Subscribe CTA\n",
+        "title": "Master Data Science in 30 Seconds! | Quick Roadmap",
+        "path": "C:\\Users\\AshutoshKumar\\AURA_4.0\\data\\output\\AURA_7027.mp4",
+        "language": "English",
+        "marketing": {
+            "ctr_titles": [
+                "Become a Data Scientist Fast!",
+                "30-Second Data Science Roadmap"
+            ],
+            "seo_tags": [
+                "Data Science roadmap",
+                "learn Data Science quickly",
+                "AI and Machine Learning",
+                "coding tutorials"
+            ],
+            "seo_description": "Discover the essential steps to master Data Science in just 30 seconds! Perfect for beginners and pros looking for a quick refresher.",
+            "thumbnail_ideas": [
+                "Laptop coding with data charts",
+                "AI brain with Data Science text"
+            ]
+        }
+    },
+    {
         "timestamp": "2026-01-26 16:50",
         "topic": "Machine learning ",
         "title": "Unlocking Machine Learning Secrets in 60 Seconds!",

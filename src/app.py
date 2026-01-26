@@ -1,3 +1,14 @@
+import os
+import sys
+
+# ==========================================
+# ☁️ CLOUD DEPLOYMENT FIX (CRITICAL)
+# ==========================================
+# This MUST be the very first thing that runs.
+# It tells ImageMagick: "Look for policy.xml in THIS folder, not the system folder."
+os.environ['MAGICK_CONFIGURE_PATH'] = os.getcwd()
+# ==========================================
+
 import PIL.Image
 # ==========================================
 # 🚑 HOTFIX: PILLOW 10.0.0 COMPATIBILITY
@@ -7,20 +18,10 @@ if not hasattr(PIL.Image, 'ANTIALIAS'):
 # ==========================================
 
 import streamlit as st
-import os
-import sys
 import json
 import time
 import pandas as pd
 from datetime import datetime
-
-# ==========================================
-# ☁️ CLOUD DEPLOYMENT FIX (CRITICAL)
-# ==========================================
-# This tells ImageMagick to look in THE CURRENT FOLDER for policy.xml
-# instead of the system folder.
-os.environ['MAGICK_CONFIGURE_PATH'] = os.getcwd()
-# ==========================================
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

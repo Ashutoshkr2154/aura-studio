@@ -1,0 +1,9 @@
+<policymap>
+  <policy domain="path" rights="read|write" pattern="@*" />
+  <policy domain="coder" rights="read|write" pattern="LABEL" />
+  <policy domain="coder" rights="read|write" pattern="CAPTION" />
+  <policy domain="coder" rights="read|write" pattern="TEXT" />
+  <policy domain="coder" rights="read|write" pattern="PDF" />
+  <policy domain="resource" name="memory" value="256MiB"/>
+  <policy domain="resource" name="map" value="512MiB"/>
+</policymap>
