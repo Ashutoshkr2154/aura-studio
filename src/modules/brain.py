@@ -15,86 +15,95 @@ class Brain:
         self.euri_url = "https://api.euron.one/api/v1/euri/chat/completions"
         self.euri_model = "gpt-4.1-nano" # Or "gpt-4o" if available on Euri
 
-    def _get_master_prompt(self, language, structure):
+    def _get_master_prompt(self, language, structure, duration, audience, style):
         """
-        AURA 4.5 PLATINUM: The 'Relevance Lock' System Prompt with Structure Support.
+        AURA 4.6: The 'Render Safe' System Prompt.
+        Integrates User Controls for Audience, Style, and Duration.
         """
-        # --- STRUCTURE LOGIC ---
-        structure_instructions = {
-            "Default": "Standard engaging video with Hook, Body, and Conclusion.",
-            "Myth vs Fact": "Start with a common MYTH. Debunk it immediately. Explain the FACT. Summary.",
-            "Top 3 List": "Fast paced listicle. 'Here are top 3...'. Number 3, Number 2, Number 1 (The best one).",
-            "Storytime": "First person narrative 'I'. 'This is how I...'. Emotional arc. Lesson learned.",
-            "Did You Know?": "Start with 'Did you know...'. Present a shocking fact. Explain the science/history behind it.",
-            "Motivation": "Deep, slow pacing. Philosophical quotes. Strong punchline at the end."
-        }
-        selected_instruction = structure_instructions.get(structure, structure_instructions["Default"])
-
         return f"""
-        # IDENTITY
-        You are AURA 4.5 (Platinum), an elite AI Video Director & YouTube Strategist. 
-        Your goal is to create high-retention, viral short-form videos (Reels/Shorts).
+# ==========================================================
+# SYSTEM IDENTITY: "AURA 4.6 - PREMIUM VIDEO OUTPUT FIXER"
+# ==========================================================
+You are a Professional YouTuber + Video Editor + AI Engineer.
+Your goal: Generate a PREMIUM, RELEVANT short video plan.
 
-        # USER TOPIC IS THE FOCUS.
-        # LANGUAGE: {language}
-        # STRUCTURE: {structure} ({selected_instruction})
+# ✅ USER CONTEXT
+- Language: {language}
+- Structure: {structure}
+- Target Duration: {duration}
+- Audience: {audience}
+- Style: {style}
 
-        # STRICT "RELEVANCE LOCK" RULES
-        1. EVERY visual, word, and overlay MUST match the topic perfectly.
-        2. NO generic "person typing" clips unless the topic is specifically about typing.
-        3. If the topic is abstract (e.g., "Integrity"), use metaphorical visuals (e.g., "Unbreakable chain") or specific examples.
+# ==========================================================
+# MODULE 1: TOPIC RELEVANCE LOCK
+# ==========================================================
+1. Extract primary keyword & 5 supporting keywords.
+2. EXACT subtopics (micro-points). Every scene must map to a subtopic.
+3. No random clip selection.
 
-        # VIDEO TIMING (Total 45-60s)
-        1. HOOK (0-3s): Pattern interrupt. Must stop the scroll.
-        2. BODY (3-50s): Follow the '{structure}' format. Fast pacing.
-        3. CTA (50-60s): Loop back to start.
+# ==========================================================
+# MODULE 2: VIDEO SCRIPT (COMPLETE FEEL)
+# ==========================================================
+Structure:
+- Hook (0–2s): Shocking statement / Pattern Interrupt.
+- Intro (2–6s): What & Why.
+- Body (6–45s): 3-5 Value points (No fluff).
+- Ending (45–55s): Summary.
+- CTA (55-60s): Loop back line.
 
-        # VISUAL SEARCH QUERY RULES
-        - You MUST provide Pexels search queries.
-        - Queries must be concrete nouns/verbs (e.g., "Lion roaring" NOT "Strength").
-        - Provide 3 alternatives per scene: [Exact, Metaphor, Broad].
+# ==========================================================
+# MODULE 3: VISUAL RELEVANCE RULES
+# ==========================================================
+For every scene:
+- Provide highly specific Pexels search query.
+- If topic is abstract (e.g. "Peace"), search for concrete object (e.g. "Monk meditating").
+- Confidence Score > 85 required.
 
-        # MARKETING & SEO REQUIREMENTS
-        - You MUST generate "marketing" data: Clickbait titles, SEO tags, and Thumbnail concepts.
+# ==========================================================
+# MODULE 4: AUDIO & SYNC RULES
+# ==========================================================
+- Video Duration MUST == Voice Duration (+0.3s buffer).
+- Music enabled: True (Auto-ducking ON).
+- Logo visible: True.
 
-        # OUTPUT FORMAT (JSON ONLY)
-        Return PURE JSON. No Markdown. No Pre-text.
-        {{
-            "upload_metadata": {{
-                "title": "Viral Clickbait Title",
-                "description": "SEO optimized description with keywords...",
-                "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-                "hashtags": ["#tag1", "#tag2", "#tag3"]
-            }},
-            "marketing": {{
-                "ctr_titles": ["Option 1", "Option 2", "Option 3"],
-                "seo_tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-                "seo_description": "Short description for YouTube...",
-                "thumbnail_ideas": ["Futuristic robot face close up", "Glowing blue circuit board", "Hacker in hoodie with green code"]
-            }},
-            "script": {{
-                "full_voiceover": "Full spoken text in {language}...",
-                "mood": "Energetic"
-            }},
-            "scenes": [
-                {{
-                    "id": 1,
-                    "timestamp": "00:00-00:03",
-                    "narration": "First sentence...",
-                    "visual": {{ "query": "specific search term" }},
-                    "visual_fallbacks": ["fallback query 1", "fallback query 2"],
-                    "overlay_text": "BIG HOOK HERE"
-                }},
-                ... (continue for all scenes)
-            ]
-        }}
-        """
+# ==========================================================
+# ✅ FINAL OUTPUT (JSON ONLY)
+# ==========================================================
+Return ONLY valid JSON with this structure:
+{{
+  "upload_metadata": {{
+    "title": "Viral Clickbait Title",
+    "description": "SEO optimized description...",
+    "tags": ["tag1", "tag2"],
+    "hashtags": ["#tag1", "#tag2"]
+  }},
+  "marketing": {{
+      "ctr_titles": ["Title 1", "Title 2"],
+      "seo_tags": ["tag1", "tag2"],
+      "seo_description": "...",
+      "thumbnail_ideas": ["Idea 1", "Idea 2"]
+  }},
+  "meta": {{ "engine": "AURA_4.6", "language": "{language}" }},
+  "script": {{ "full_voiceover": "...", "hook": "...", "mood": "Energetic" }},
+  "branding": {{ "logo_opacity": 0.8, "logo_position": "top_right" }},
+  "music": {{ "mood": "auto", "volume": 0.2 }},
+  "scenes": [
+    {{
+      "id": 1,
+      "narration": "...",
+      "visual": {{ "query": "...", "fallback": "..." }},
+      "overlay_text": "...",
+      "duration_estimate": 3.5
+    }}
+  ]
+}}
+"""
 
-    def generate_video_blueprint(self, topic: str, language: str = "English", structure: str = "Default"):
-        print(f"🧠 AURA BRAIN: Analyzing '{topic}' [{structure}] in {language}...")
+    def generate_video_blueprint(self, topic: str, language: str = "English", structure: str = "Default", duration: str = "60s", audience: str = "General", style: str = "Fast Paced"):
+        print(f"🧠 AURA BRAIN: Analyzing '{topic}' [{structure}] for {audience} in {style} style...")
         
-        # Load the Master Prompt with Structure
-        system_instruction = self._get_master_prompt(language, structure)
+        # Load the Master Prompt with NEW Inputs
+        system_instruction = self._get_master_prompt(language, structure, duration, audience, style)
 
         # --- ATTEMPT 1: OPENAI (PRIMARY) ---
         if self.openai_client:
@@ -106,7 +115,6 @@ class Brain:
                 print("🔄 Switching to Backup Engine (Euri AI)...")
         
         # --- ATTEMPT 2: EURI AI (FALLBACK) ---
-        # Checks for Euri Key (Config or Override)
         if self.euri_key:
             try:
                 return self._call_euri(topic, system_instruction)
@@ -138,7 +146,6 @@ class Brain:
             "Authorization": f"Bearer {self.euri_key}"
         }
         
-        # Euri might not support 'response_format': 'json_object', so we emphasize it in the prompt
         user_prompt = f"Topic: {topic}\nREMINDER: Output Valid JSON ONLY. No markdown."
 
         payload = {
@@ -147,7 +154,7 @@ class Brain:
                 {"role": "user", "content": user_prompt}
             ],
             "model": self.euri_model,
-            "max_tokens": 2500, # Increased token limit for full JSON
+            "max_tokens": 3000, # Increased for larger 4.6 blueprints
             "temperature": 0.7
         }
 
@@ -171,7 +178,7 @@ class Brain:
             pass
             
         try:
-            # Clean up potential markdown formatting if Euri adds it
+            # Clean up potential markdown formatting
             clean_content = raw_content.replace("```json", "").replace("```", "").strip()
             blueprint = json.loads(clean_content)
         except json.JSONDecodeError:

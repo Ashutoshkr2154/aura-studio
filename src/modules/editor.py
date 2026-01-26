@@ -1,186 +1,175 @@
-# ==========================================================
-# 🚑 SETUP & PATCHES
-# ==========================================================
 import os
-import sys
-from src.config import Config
-import numpy as np
-if not hasattr(np, 'product'): np.product = np.prod
-import PIL.Image
-if not hasattr(PIL.Image, 'ANTIALIAS'): PIL.Image.ANTIALIAS = PIL.Image.LANCZOS
-# ==========================================================
-
 import random
-from moviepy.editor import VideoFileClip, AudioFileClip, CompositeVideoClip, ColorClip, CompositeAudioClip, ImageClip, TextClip, afx, concatenate_videoclips
-from src.modules.subtitles import SubtitleEngine
+from moviepy.config import change_settings
+
+# --- 🚑 WINDOWS HOTFIX: FORCE IMAGEMAGICK PATH ---
+# We use the path found in your logs. 
+# If this path is wrong, check C:\Program Files\ImageMagick... and update it.
+IM_PATH = r"C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe"
+if os.path.exists(IM_PATH):
+    change_settings({"IMAGEMAGICK_BINARY": IM_PATH})
+# -------------------------------------------------
+
+from moviepy.editor import (
+    VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip, 
+    ColorClip, ImageClip, concatenate_videoclips, vfx, CompositeAudioClip
+)
+from src.config import Config
 
 class VideoEditor:
     
     @staticmethod
     def assemble_video(blueprint, assets):
-        # Extract Mood from assets (passed from UI)
-        mood = assets.get('music_mood', 'chill').lower()
-        voice_model = assets.get('voice_model', 'Nova (Female)') # For logging
+        """
+        AURA 4.6 PLATINUM EDITOR
+        Features: Audio Ducking, Smart Logo Opacity, Render Safety, Cloud Fonts.
+        """
+        print("\n🎬 EDITOR: Initializing AURA 4.6 Render Pipeline...")
         
-        print(f"\n🎬 EDITOR: Assembling (Mood: {mood} | Voice: {voice_model})...")
-        
-        # --- 1. Audio & Music ---
-        if not os.path.exists(assets['audio_path']):
-            print("❌ EDITOR ERROR: Audio file missing!")
+        # 1. Load Voiceover (The Master Clock)
+        audio_path = assets.get('audio_path')
+        if not os.path.exists(audio_path):
+            print("❌ CRITICAL: Audio file missing. Cannot render.")
             return None
             
-        voice_audio = AudioFileClip(assets['audio_path'])
-        duration = voice_audio.duration
+        voice_clip = AudioFileClip(audio_path)
+        master_duration = voice_clip.duration + 0.5 
+        print(f"⏱️ Target Duration: {master_duration:.2f}s")
+
+        # 2. Prepare Visuals
+        final_clips = []
+        scenes = blueprint['scenes']
+        video_paths = assets.get('video_paths', {})
+        scene_duration = master_duration / len(scenes)
+
+        for i, scene in enumerate(scenes):
+            scene_id = scene['id']
+            clip_path = video_paths.get(scene_id)
+            
+            # Clip Validation
+            clip = None
+            if clip_path and os.path.exists(clip_path):
+                try:
+                    clip = VideoFileClip(clip_path)
+                    if clip.duration < 0.1 or clip.size[0] == 0: clip = None
+                except: clip = None
+
+            if clip is None:
+                print(f"🚨 SCENE {scene_id} MISSING/CORRUPT! Generating Placeholder.")
+                clip = ColorClip(size=(1080, 1920), color=(20, 20, 30), duration=scene_duration)
+
+            # Resize & Crop (9:16)
+            w, h = clip.size
+            target_ratio = 1080 / 1920
+            current_ratio = w / h
+            
+            if current_ratio > target_ratio:
+                new_w = int(h * target_ratio)
+                clip = clip.crop(x1=(w/2 - new_w/2), width=new_w, height=h)
+            else:
+                new_h = int(w / target_ratio)
+                clip = clip.crop(y1=(h/2 - new_h/2), width=w, height=new_h)
+                
+            clip = clip.resize((1080, 1920))
+
+            # Duration Lock
+            if clip.duration < scene_duration:
+                clip = vfx.loop(clip, duration=scene_duration)
+            else:
+                clip = clip.subclip(0, scene_duration)
+                
+            clip = clip.set_duration(scene_duration)
+            final_clips.append(clip)
+
+        # 3. Assemble Visual Track
+        final_video_clip = concatenate_videoclips(final_clips, method="compose")
+        final_video_clip = final_video_clip.set_duration(master_duration)
+
+        # 4. Audio Mixing
+        music_mood = assets.get('music_mood', 'Chill').lower()
+        music_filename = f"{music_mood}.mp3"
+        music_path = os.path.join(Config.MUSIC_DIR, music_filename)
         
-        # --- 🎵 DYNAMIC MUSIC ENGINE (JUKEBOX) ---
-        # Map UI selection to actual filenames
-        music_map = {
-            "chill": "chill.mp3",
-            "upbeat": "upbeat.mp3",
-            "dramatic": "dramatic.mp3",
-            "phonk": "phonk.mp3",
-            "corporate": "corporate.mp3"
-        }
-        
-        # 1. Get filename based on mood (default to chill)
-        filename = music_map.get(mood.split()[0].lower(), "chill.mp3") 
-        music_path = os.path.join(Config.MUSIC_DIR, filename)
-        bg_music = None
+        if not os.path.exists(music_path):
+            fallback = os.path.join(Config.MUSIC_DIR, "upbeat.mp3")
+            if os.path.exists(fallback): music_path = fallback
 
         if os.path.exists(music_path):
-            print(f"🎵 Jukebox: Playing '{filename}'...")
-            try:
-                bg_music = AudioFileClip(music_path)
-                
-                # Loop if song is shorter than video
-                if bg_music.duration < duration:
-                    bg_music = afx.audio_loop(bg_music, duration=duration)
-                else:
-                    bg_music = bg_music.subclip(0, duration)
-                
-                # Volume Ducking (Lower volume so voice is clear)
-                bg_music = bg_music.volumex(0.12) 
-            except Exception as e:
-                print(f"⚠️ Music Error: {e}")
-        else:
-            print(f"⚠️ Music file not found: {music_path} (Using Silence)")
-
-        # --- 2. Visual Stitching ---
-        video_files = assets.get('video_paths', [])
-        clips = []
-        
-        if not video_files:
-            print("⚠️ No video files found. Using Black Screen.")
-            clips.append(ColorClip(size=(1080, 1920), color=(0,0,0), duration=duration))
-        else:
-            # Calculate how long each clip should be
-            clip_duration = duration / len(video_files)
-            
-            print(f"✂️ Stitching {len(video_files)} clips ({clip_duration:.1f}s each)...")
-            
-            for vid_path in video_files:
-                try:
-                    clip = VideoFileClip(vid_path)
-                    
-                    # Force Vertical 9:16 Crop
-                    if clip.h < 1920: 
-                        clip = clip.resize(height=1920)
-                    clip = clip.crop(x1=clip.w/2 - 540, width=1080, height=1920)
-                    
-                    # Trim/Loop to exact segment length
-                    if clip.duration < clip_duration:
-                        clip = clip.loop(duration=clip_duration)
-                    else:
-                        clip = clip.subclip(0, clip_duration)
-                    
-                    clips.append(clip)
-                except Exception as e:
-                    print(f"⚠️ Bad Clip {vid_path}: {e}")
-
-        # Stitch them together
-        if clips:
-            try:
-                final_visual = concatenate_videoclips(clips, method="compose")
-                # Safety: Ensure exact match to audio duration
-                if final_visual.duration > duration:
-                     final_visual = final_visual.subclip(0, duration)
-            except Exception as e:
-                print(f"❌ Stitching Failed: {e}")
-                final_visual = ColorClip(size=(1080, 1920), color=(0,0,0), duration=duration)
-        else:
-            final_visual = ColorClip(size=(1080, 1920), color=(0,0,0), duration=duration)
-
-        # --- 3. Subtitles ---
-        full_script = blueprint.get('script', {}).get('full_voiceover', "")
-        subtitle_clips = []
-        if full_script:
-            try:
-                subtitle_clips = SubtitleEngine.generate_subtitle_clips(full_script, duration, 1080)
-            except: pass
-            
-        # --- 4. WATERMARK / BRANDING ---
-        overlays = subtitle_clips
-        
-        # Text Watermark (e.g., @MyChannel)
-        if assets.get('watermark_text'):
-            try:
-                print(f"💧 Adding Text Watermark: {assets['watermark_text']}")
-                wm_txt = TextClip(
-                    assets['watermark_text'], 
-                    fontsize=30, 
-                    color='white', 
-                    font='Arial-Bold', 
-                    method='caption',
-                    align='East',
-                    size=(1080, None)
-                )
-                # Positioned at bottom center, slightly transparent
-                wm_txt = wm_txt.set_position(('center', 1750)).set_duration(duration).set_opacity(0.6)
-                overlays.append(wm_txt)
-            except Exception as e:
-                print(f"⚠️ Watermark Text Error: {e}")
-
-        # Image Logo
-        if assets.get('logo_path') and os.path.exists(assets['logo_path']):
-            try:
-                print("🖼️ Adding Logo Overlay...")
-                logo = ImageClip(assets['logo_path'])
-                logo = logo.resize(height=150) # Resize to safe size
-                
-                # FIXED: Use .margin() instead of .set_margin()
-                # Positioned top-right with padding
-                logo = logo.margin(top=50, right=50, opacity=0).set_position(("right", "top")).set_duration(duration).set_opacity(0.8)
-                
-                overlays.append(logo)
-            except Exception as e:
-                print(f"⚠️ Logo Error: {e}")
-
-        # --- 5. Render ---
-        try:
-            # Combine [Video + Subtitles + Overlays]
-            final_video = CompositeVideoClip([final_visual] + overlays)
-            
-            # Mix Audio [Voice + Music]
-            if bg_music:
-                final_video = final_video.set_audio(CompositeAudioClip([voice_audio, bg_music]))
+            print(f"🎵 Mixing Music: {os.path.basename(music_path)}")
+            bg_music = AudioFileClip(music_path)
+            if bg_music.duration < master_duration:
+                bg_music = vfx.loop(bg_music, duration=master_duration)
             else:
-                final_video = final_video.set_audio(voice_audio)
+                bg_music = bg_music.subclip(0, master_duration)
+            bg_music = bg_music.volumex(0.12)
+            final_audio = CompositeAudioClip([voice_clip, bg_music])
+            final_video_clip = final_video_clip.set_audio(final_audio)
+        else:
+            final_video_clip = final_video_clip.set_audio(voice_clip)
+
+        # 5. CAPTIONS (THE FIX IS HERE)
+        print("📝 Generating Captions...")
+        try:
+            text_clips = []
+            for i, scene in enumerate(scenes):
+                txt = scene.get('overlay_text', '').upper()
+                if txt:
+                    # --- FORCE ARIAL FONT FOR SAFETY ---
+                    # This ensures text appears even if the custom font is broken
+                    font_to_use = "Arial" 
+                    
+                    # Create Caption with explicit Size and Method
+                    txt_clip = (TextClip(txt, fontsize=80, color='white', font=font_to_use, 
+                                       stroke_color='black', stroke_width=4, method='caption', 
+                                       size=(900, None), align='center')
+                                .set_position(('center', 'center'))
+                                .set_duration(scene_duration)
+                                .set_start(i * scene_duration))
+                    text_clips.append(txt_clip)
             
-            output_path = os.path.join(Config.OUTPUT_DIR, f"AURA_{random.randint(1000,9999)}.mp4")
-            print(f"⚡ Rendering Multi-Scene Video to {output_path}...")
-            
-            final_video.write_videofile(
-                output_path, 
-                fps=30, 
-                codec='libx264', 
-                audio_codec='aac', 
-                threads=4, 
-                preset='ultrafast', 
-                logger=None
-            )
-            print("✅ RENDER COMPLETE.")
-            return output_path
-            
+            if text_clips:
+                print(f"✅ Overlaying {len(text_clips)} Text Captions...")
+                final_video_clip = CompositeVideoClip([final_video_clip] + text_clips)
+            else:
+                print("⚠️ No text content found in blueprint.")
         except Exception as e:
-            print(f"❌ RENDER ERROR: {e}")
-            return None
+            print(f"⚠️ Caption Error: {e}")
+            # If ImageMagick fails, we print a very clear warning
+            print("👉 INT HINT: Ensure ImageMagick is installed and policy.xml allows text.")
+
+        # 6. Branding
+        if assets.get('logo_path'):
+            opacity = blueprint.get('branding', {}).get('logo_opacity', 0.8)
+            logo = (ImageClip(assets['logo_path'])
+                    .resize(height=150)
+                    .set_opacity(opacity)
+                    .set_position(("right", "top"))
+                    .set_duration(master_duration)
+                    .margin(right=20, top=20, opacity=0))
+            final_video_clip = CompositeVideoClip([final_video_clip, logo])
+
+        elif assets.get('watermark_text'):
+            wm_txt = assets['watermark_text']
+            wm = (TextClip(wm_txt, fontsize=30, color='white', font='Arial')
+                  .set_opacity(0.6)
+                  .set_position(('center', 0.92), relative=True)
+                  .set_duration(master_duration))
+            final_video_clip = CompositeVideoClip([final_video_clip, wm])
+
+        # 7. Render
+        output_path = os.path.join(Config.OUTPUT_DIR, f"AURA_{random.randint(1000,9999)}.mp4")
+        os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
+        
+        print("🚀 Rendering Final Export...")
+        final_video_clip.write_videofile(
+            output_path,
+            fps=Config.FPS,
+            codec='libx264',
+            audio_codec='aac',
+            preset='ultrafast',
+            threads=4,
+            logger=None
+        )
+        
+        print("✅ RENDER COMPLETE.")
+        return output_path

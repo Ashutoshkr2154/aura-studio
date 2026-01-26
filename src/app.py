@@ -1,3 +1,11 @@
+import PIL.Image
+# ==========================================
+# 🚑 HOTFIX: PILLOW 10.0.0 COMPATIBILITY
+# ==========================================
+if not hasattr(PIL.Image, 'ANTIALIAS'):
+    PIL.Image.ANTIALIAS = PIL.Image.LANCZOS
+# ==========================================
+
 import streamlit as st
 import os
 import sys
@@ -43,7 +51,7 @@ def save_to_history(entry):
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="AURA 4.5 | Platinum Studio",
+    page_title="AURA 4.6 | Platinum Studio",
     page_icon="💎",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -52,7 +60,6 @@ st.set_page_config(
 # Initialize Session State
 if 'page' not in st.session_state: st.session_state.page = "Generate"
 if 'theme' not in st.session_state: st.session_state.theme = "Dark"
-# Euri Key Session Management
 if 'euri_key_session' not in st.session_state: st.session_state.euri_key_session = Config.EURIAI_API_KEY
 
 # --- THEME ENGINE ---
@@ -82,7 +89,6 @@ def apply_theme():
             </style>
         """, unsafe_allow_html=True)
         
-    # Global Button Style
     st.markdown("""
         <style>
         div.stButton > button {
@@ -98,15 +104,14 @@ apply_theme()
 
 # --- SIDEBAR NAVIGATION ---
 with st.sidebar:
-    st.title("💎 AURA 4.5")
-    st.caption("Creator Edition")
+    st.title("💎 AURA 4.6")
+    st.caption("Director's Cut Edition")
     st.divider()
     
     selected_tab = st.radio("📍 Navigation", ["🚀 Generate", "📜 History", "⚙️ Settings", "📊 Dashboard"])
     
     st.divider()
     
-    # THEME TOGGLE
     st.markdown("### 🎨 Appearance")
     theme_choice = st.radio("Theme Mode", ["Dark", "Light"], horizontal=True, index=0 if st.session_state.theme == "Dark" else 1)
     if theme_choice != st.session_state.theme:
@@ -132,21 +137,29 @@ if selected_tab == "🚀 Generate":
     with col_input:
         with st.container(border=True):
             st.subheader("1. Concept Strategy")
-            topic = st.text_area("Video Topic", height=100, placeholder="e.g. 3 AI Tools better than ChatGPT")
+            topic = st.text_area("Video Topic", height=100, placeholder="e.g. 3 AI Tools better than ChatGPT (Show robots, coding, future city)")
             
-            # 4.5 Feature: Structure Selector
-            structure = st.selectbox("🏗️ Content Structure", 
-                ["Default", "Myth vs Fact", "Top 3 List", "Storytime", "Did You Know?", "Motivation"],
-                help="Select the storytelling template for your Short."
-            )
-            
+            # --- NEW CONTROLS FOR AURA 4.6 ---
             c1, c2 = st.columns(2)
             with c1:
-                language = st.selectbox("🌍 Language", ["English", "Hindi", "Spanish", "French", "German"])
-                # 4.5 Feature: Series Mode
-                is_series = st.checkbox("Series Mode (Part 1)", value=False)
+                structure = st.selectbox("🏗️ Structure", 
+                    ["Viral Hook", "Educational", "Storytime", "Listicle", "Motivation"],
+                    help="How the script is organized.")
+                audience = st.selectbox("👥 Audience", 
+                    ["General", "Students", "Professionals", "Kids", "Tech Enthusiasts"],
+                    help="Who is watching?")
             with c2:
+                style = st.selectbox("🎨 Visual Style", 
+                    ["Fast Paced", "Cinematic", "Minimalist", "Documentary", "Vlog"],
+                    help="The pacing and look of the video.")
                 duration = st.select_slider("⏱️ Duration", ["30s", "45s", "60s"], value="60s")
+            
+            st.divider()
+            
+            c3, c4 = st.columns(2)
+            with c3:
+                language = st.selectbox("🌍 Language", ["English", "Hindi", "Spanish", "French", "German"])
+            with c4:
                 voice = st.selectbox("🎙️ Voice", ["Nova (Female)", "Alloy (Male)", "Echo (Deep)", "Hindi (Neural)"])
 
             st.divider()
@@ -164,10 +177,6 @@ if selected_tab == "🚀 Generate":
                     logo_path = os.path.join(Config.TEMP_DIR, "logo.png")
                     with open(logo_path, "wb") as f:
                         f.write(logo_file.getbuffer())
-                
-                # Series Logic
-                if is_series:
-                    watermark_text = f"{watermark_text} | PART 1" if watermark_text else "PART 1"
             
             st.divider()
             generate_btn = st.button("🚀 LAUNCH PRODUCTION", use_container_width=True)
@@ -182,12 +191,19 @@ if selected_tab == "🚀 Generate":
                 # PHASE 0: PREP
                 clean_temp_folder(Config.TEMP_DIR)
                 
-                # PHASE 1: BRAIN (Updated for 4.5)
-                status.write(f"🧠 **Brain:** Drafting '{structure}' script...")
-                # Pass Session Key override
+                # PHASE 1: BRAIN (Updated for 4.6)
+                status.write(f"🧠 **Brain:** Drafting '{structure}' script for {audience}...")
                 brain = Brain(euri_key_override=st.session_state.euri_key_session)
-                # Pass Structure
-                blueprint = brain.generate_video_blueprint(topic, language, structure)
+                
+                # Passing NEW parameters to Brain
+                blueprint = brain.generate_video_blueprint(
+                    topic=topic, 
+                    language=language, 
+                    structure=structure,
+                    duration=duration,
+                    audience=audience,
+                    style=style
+                )
                 
                 if not blueprint:
                     status.update(label="❌ Brain Failure", state="error")
@@ -213,13 +229,20 @@ if selected_tab == "🚀 Generate":
 
                 # PHASE 4: EDITING
                 status.write(f"🎬 **Editor:** Mixing tracks (Music: {music})...")
+                
+                # --- SAFETY CHECK: PREVENT CRASH IF LOGO MISSING ---
+                safe_logo_path = None
+                if logo_path and os.path.exists(logo_path):
+                    safe_logo_path = logo_path
+                
                 assets = {
                     "audio_path": audio_path,
                     "video_paths": video_paths,
                     "music_mood": music,
                     "watermark_text": watermark_text,
-                    "logo_path": logo_path
+                    "logo_path": safe_logo_path # Use Safe Variable
                 }
+                
                 final_video = VideoEditor.assemble_video(blueprint, assets)
                 
                 status.update(label="✅ Production Complete!", state="complete", expanded=False)
@@ -259,14 +282,14 @@ if selected_tab == "🚀 Generate":
                                 else:
                                     st.error("Thumbnail generation failed.")
 
-                # --- SAVE FULL DATA TO HISTORY ---
+                # SAVE HISTORY
                 entry = {
                     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     "topic": topic,
                     "title": title,
                     "path": final_video,
                     "language": language,
-                    "marketing": blueprint.get('marketing', {})  # <--- SAVING MARKETING DATA
+                    "marketing": blueprint.get('marketing', {})
                 }
                 save_to_history(entry)
 
@@ -290,7 +313,7 @@ elif selected_tab == "📜 History":
     history_data = load_history()
     
     if not history_data:
-        st.warning("No history found. Go to 'Generate' to create your first video!")
+        st.warning("No history found.")
     else:
         for item in history_data:
             with st.container(border=True):
@@ -303,9 +326,7 @@ elif selected_tab == "📜 History":
                 with c2:
                     st.subheader(item.get('title', 'Untitled'))
                     st.caption(f"📅 {item['timestamp']} | 🌍 {item['language']}")
-                    st.markdown(f"**Topic:** {item['topic']}")
                     
-                    # NEW: VIEW SAVED MARKETING DATA
                     with st.expander("📈 View Saved SEO & Marketing"):
                         m = item.get('marketing', {})
                         st.markdown("**Viral Title:** " + (m.get('ctr_titles', ['N/A'])[0] if m.get('ctr_titles') else 'N/A'))
@@ -327,7 +348,6 @@ elif selected_tab == "⚙️ Settings":
         
         st.info("💡 Note: Euri Key updates here apply to the current session only.")
         
-        # 4.5 Feature: Euri Key Editor
         new_euri_key = st.text_input("Euri AI API Key (Override)", 
                                      value=st.session_state.euri_key_session if st.session_state.euri_key_session else "", 
                                      type="password",
