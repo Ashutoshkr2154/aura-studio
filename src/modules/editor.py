@@ -1,15 +1,5 @@
 import os
 import random
-from moviepy.config import change_settings
-
-# --- 🚑 WINDOWS HOTFIX: FORCE IMAGEMAGICK PATH ---
-# We use the path found in your logs. 
-# If this path is wrong, check C:\Program Files\ImageMagick... and update it.
-IM_PATH = r"C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe"
-if os.path.exists(IM_PATH):
-    change_settings({"IMAGEMAGICK_BINARY": IM_PATH})
-# -------------------------------------------------
-
 from moviepy.editor import (
     VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip, 
     ColorClip, ImageClip, concatenate_videoclips, vfx, CompositeAudioClip
@@ -107,18 +97,16 @@ class VideoEditor:
         else:
             final_video_clip = final_video_clip.set_audio(voice_clip)
 
-        # 5. CAPTIONS (THE FIX IS HERE)
+        # 5. CAPTIONS
         print("📝 Generating Captions...")
         try:
             text_clips = []
             for i, scene in enumerate(scenes):
                 txt = scene.get('overlay_text', '').upper()
                 if txt:
-                    # --- FORCE ARIAL FONT FOR SAFETY ---
-                    # This ensures text appears even if the custom font is broken
-                    font_to_use = "Arial" 
+                    # FORCE ARIAL on Cloud to avoid font path errors
+                    font_to_use = "Arial"
                     
-                    # Create Caption with explicit Size and Method
                     txt_clip = (TextClip(txt, fontsize=80, color='white', font=font_to_use, 
                                        stroke_color='black', stroke_width=4, method='caption', 
                                        size=(900, None), align='center')
@@ -128,14 +116,9 @@ class VideoEditor:
                     text_clips.append(txt_clip)
             
             if text_clips:
-                print(f"✅ Overlaying {len(text_clips)} Text Captions...")
                 final_video_clip = CompositeVideoClip([final_video_clip] + text_clips)
-            else:
-                print("⚠️ No text content found in blueprint.")
         except Exception as e:
             print(f"⚠️ Caption Error: {e}")
-            # If ImageMagick fails, we print a very clear warning
-            print("👉 INT HINT: Ensure ImageMagick is installed and policy.xml allows text.")
 
         # 6. Branding
         if assets.get('logo_path'):

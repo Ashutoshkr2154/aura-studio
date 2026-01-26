@@ -14,8 +14,13 @@ import time
 import pandas as pd
 from datetime import datetime
 
-# --- CLOUD DEPLOYMENT FIX (ImageMagick Policy) ---
+# ==========================================
+# ☁️ CLOUD DEPLOYMENT FIX (CRITICAL)
+# ==========================================
+# This tells ImageMagick to look in THE CURRENT FOLDER for policy.xml
+# instead of the system folder.
 os.environ['MAGICK_CONFIGURE_PATH'] = os.getcwd()
+# ==========================================
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -240,7 +245,7 @@ if selected_tab == "🚀 Generate":
                     "video_paths": video_paths,
                     "music_mood": music,
                     "watermark_text": watermark_text,
-                    "logo_path": safe_logo_path # Use Safe Variable
+                    "logo_path": safe_logo_path
                 }
                 
                 final_video = VideoEditor.assemble_video(blueprint, assets)
