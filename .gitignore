@@ -1,4 +1,29 @@
-*.mp4 
-*.mp3 
-data/output/ 
-assets/temp/ 
+# 1. Virtual Environment (Huge folder)
+venv/
+.env
+env/
+
+# 2. Python System Files (Clutter)
+__pycache__/
+*.py[cod]
+
+# 3. API Keys & Secrets (CRITICAL SECURITY)
+.env
+secrets.toml
+*.pem
+
+# 4. Media & Generated Content (Your List)
+*.mp4
+*.mp3
+*.wav
+*.png
+*.jpg
+
+# 5. Application Data Folders
+data/output/
+assets/temp/
+temp/
+
+# 6. OS Clutter
+.DS_Store
+Thumbs.db
