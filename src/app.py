@@ -178,6 +178,12 @@ if selected_tab == "🚀 Generate":
                 style = st.selectbox("🎨 Visual Style", 
                     ["Fast Paced", "Cinematic", "Minimalist", "Documentary", "Vlog"],
                     help="The pacing and look of the video.")
+                
+                # --- ✨ NEW FEATURE: AI IMAGE TOGGLE ---
+                use_ai_images = st.toggle("✨ Use AI Generated Images", value=False, 
+                                        help="Turn ON to generate custom AI images instead of searching stock video.")
+                # ------------------------------------
+
                 duration = st.select_slider("⏱️ Duration", ["30s", "45s", "60s"], value="60s")
             
             st.divider()
@@ -246,11 +252,17 @@ if selected_tab == "🚀 Generate":
                 VoiceEngine.generate_audio(script_text, audio_path, voice_name=target_voice)
                 status.write("✅ Audio Mastered")
 
-                # PHASE 3: VISUALS
+                # PHASE 3: VISUALS (UPDATED FOR AI MODE)
                 scenes = blueprint['scenes']
-                status.write(f"👁️ **Vision:** Scouting {len(scenes)} premium assets...")
-                video_paths = AssetEngine.download_scene_assets(scenes)
-                status.write(f"✅ Downloaded {len(video_paths)} Clips")
+                
+                # Display which mode is active
+                mode_label = "AI Artists" if use_ai_images else "Stock Footage"
+                status.write(f"👁️ **Vision:** Scouting assets via **{mode_label}**...")
+                
+                # PASS THE TOGGLE VALUE HERE
+                video_paths = AssetEngine.download_scene_assets(scenes, use_ai_images=use_ai_images)
+                
+                status.write(f"✅ Assets Ready ({len(video_paths)} clips)")
 
                 # PHASE 4: EDITING
                 status.write(f"🎬 **Editor:** Mixing tracks (Music: {music})...")
